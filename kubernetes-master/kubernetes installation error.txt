@@ -1,0 +1,16 @@
+Fix the Error
+To fix the error you can delete the config.toml file and restart containerd then try the init command like below:
+
+$ rm /etc/containerd/config.toml
+$ systemctl restart containerd
+$ kubeadm init
+
+ kubeadm token create --print-join-command
+
+sudo rm -rf /var/lib/etcd
+
+sudo kubeadm reset
+sudo kubeadm init
+
+
+https://www.golinuxcloud.com/install-kubernetes-cluster-kubeadm-centos-8/

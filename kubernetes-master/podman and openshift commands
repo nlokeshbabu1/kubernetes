@@ -1,0 +1,132 @@
+Namespaces
+A namespace isolates specific system resources usually visible to all processes.
+Namespaces can include resources like network interfaces, the process ID list, mount points, IPC resources, and the system's host name information.
+
+Kubernetes Overview
+Kubernetes is an orchestration service that simplifies the deployment, management, and scaling of containerized applications.
+
+
+PODMAN COMMANDS
+#podman run command runs a container locally based on an image.
+podman run ubi8/ubi:8.3 echo 'Hello world!'
+
+#To start a container image as a background process
+-d run background
+-p for port number
+podman run -d -p 8080 registry.redhat.io/rhel8/httpd-24
+podman port -l
+
+#starts a Bash terminal inside the container, and interactively runs some commands in it:
+podman run -it ubi8/ubi:8.3 /bin/bash
+
+#environment variables is setting up credentials into a MySQL database server.
+ podman run --name mysql-custom \
+> -e MYSQL_USER=redhat -e MYSQL_PASSWORD=r3dh4t \
+> -e MYSQL_ROOT_PASSWORD=r3dh4t \
+> -d registry.redhat.io/rhel8/mysql-80
+
+
+#Verify that the container started without errors.
+podman ps --format "{{.ID}} {{.Image}} {{.Names}}"
+
+
+#podman run command creates a new container from an image and starts a process inside the new container.
+podman run registry.redhat.io/rhel8/httpd-24
+echo "Hello from Containerfile" > /var/www/html/index.html
+
+
+#To check running container
+podman ps
+
+#To build a Images
+podman build -t NAME:TAG DIR
+
+#To give the name manually to container user --name
+podman run --name my-httpd-container \
+> registry.redhat.io/rhel8/httpd-24
+
+#The specified command must be executable inside the container image.
+podman run registry.redhat.io/rhel8/httpd-24 ls /tmp
+
+#The podman exec command starts an additional process inside an already running container
+podman exec 7ed6e671a600 cat /etc/hostname
+7ed6e671a600 -- is containerID
+
+#To check the container which are running and stopped
+podman ps -a
+
+#To stop the container
+podman stop <container name>
+
+#To kill the container
+podman kill <container name>
+
+#To restart the container
+podman restart <container name>
+
+#To delete all container at the same time
+podman rm -a 
+
+-f Remove the container even if it is not stopped
+
+#To stop the container
+podman stop -a
+-a is used to delete at same time
+
+NOTE: The inspect, stop, kill, restart, and rm subcommands can use the container ID instead of the container name.
+
+#To copy the file to the container
+podman cp
+
+#define port forwarding rules to allow external access to a container service.
+podman run -d --name apache1 -p 8080:8080
+value 8080 colon 8080 specifies that any requests to port 8080 on the host are forwarded to port 8080 within the container.
+
+#To bind the port to the specified ip address.
+podman run -d -- name apache2 -p 127.0.0.1:8081:8080
+
+#To check the assigned port.
+podman port <container name>
+
+This the example of create a container of mysql using name, mount point,port forwarding, user,passwd,dataname,root passwd
+[student@workstation ~]$ podman run --name mysqldb-port \
+>  -d -v /home/student/local/mysql:/var/lib/mysql/data -p 13306:3306 \
+>  -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 \
+>  -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=r00tpa55 \
+>  registry.redhat.io/rhel8/mysql-80:1
+
+#To login some container image  registries require access authorization 
+podman login
+
+#To pull container image from registry
+podman pull [OPTION] [REGISTRY[:PORT]/]NAME[:TAG]
+example:
+podman pull quay.io /bitnami/nginx
+
+#To identify which files were changed, created, or deleted since the container was started, use the diff subcommand.
+podman diff
+
+#To commit the changes to another image
+podman commit mysql-basic  mysql-custom
+
+#To tag for container image
+podman tag do180-custom-httpd \
+> quay.io/${RHT_OCP4_QUAY_USER}/do180-custom-httpd:v1.0
+example: here :v1.0 is the tag for httpd
+
+#To build the image after create a Containerfile
+podman build --layers=false \
+>  -t do180/custom-apache .
+
+#To retrieve the ouptput of a running container
+podman logs containerName
+#In openshift
+oc logs podName -c containerName
+
+#OpenShift events signal significant actions like starting a container or destroying a pod.
+oc get events
+
+#To only retrieve the events that relate to a mysql pod, refer Events field from the output of oc describe pod mysql command
+oc describe pod mysql
+
+
